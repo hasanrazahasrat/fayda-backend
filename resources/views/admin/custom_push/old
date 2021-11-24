@@ -1,0 +1,259 @@
+@extends('admin.layout.master')
+@section('title', 'Custom push')
+
+@section('css')
+<style>
+    .select2-container--default .select2-results__option[aria-selected="true"] {
+    background-color: #da0e0e;
+}
+label u {
+    -webkit-appearance: button;
+    -moz-appearance: button;
+    appearance: button;
+
+    text-decoration: none;
+    color: initial;
+}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
+@endsection
+@section('content')
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Notifications Detail</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{{route('admin.dashboard')}}">Home</a></li>
+                        <li class="breadcrumb-item active">Custom push</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card card-primary">
+                        <div class="card-header" style="background-color: #8cc63f;">
+                            <h3 class="card-title">Push notification</h3>
+                        </div>
+                        <form role="form" id="quickForm" method="post" action="{{ route('admin.custom_push.store') }}" enctype="multipart/form-data">
+                            @csrf
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="send_to">Send to</label>
+                                    @php
+                                    $users = DB::table('users')->get();
+                                    @endphp
+                                    <select class="form-control js-select2 "  name="user_id[]" id=" tags" multiple>
+
+                                        <option disabled="">All Users</option>
+                                        @foreach($users as $user)
+                                        <option value="{{$user->id}}">{{$user->name}}</option>
+                                        @endforeach
+                                        
+                                    </select>
+
+                                </div>
+                                <div class="form-group">
+                                    <label>Title</label>
+                                    <input class="form-control" type="text" name="title" placeholder="Enter Title">
+                                </div>
+                                <div class="form-group">
+
+                                    <label for="msg">Detail</label>
+                                    <textarea name="detail" class="form-control" id="message"
+                                              placeholder="Enter Detail"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Image</label>
+                                    <label for=b1>
+                                        <u class="btn" style="background-color: #8cc63f;">Upload Image</u>
+                                    <input  style="visibility:hidden; width:0px" type=file name=icon id=b1
+                                    
+                                     accept='image/*'>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button type="submit" class="btn " style="background-color: #8cc63f;">Send</button>
+                            </div>
+                        </form>
+                    </div>
+                    <br/>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Notification History</h3>
+                        </div>
+                        <div class="card-body">
+                            <table id="example1" class="table table-bordered table-striped">
+                                <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Detail</th>
+                                    <th>Image</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                               
+                                @foreach($notifications as $notification)
+                                    <tbody>
+                                    <tr>
+                                        
+                                        
+                                        <td>{{$notification->title}}</td>
+                                        <td>{{$notification->detail}}</td>
+                                        <td>
+                                        <?php $im =  substr($notification->icon, -1); ?>
+                                            @if($im != 'e')
+                                            <img src="{{$notification->icon}}" width='60' hieght='60'>
+                                            @else
+                                            
+                                            <img src="{{asset('storage/images/cLAxd5rtwmB0e3zh7VDjXlpyrcH2ICFcrC3fjjas.png')}}" width='60' hieght='60'>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <form action="{{route('admin.custom_push.destroy',$notification->id)}}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-danger"
+                                                        onclick="return confirm('Are you sure?')"><i
+                                                        class="fa fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                @endforeach
+                                <tfoot>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Detail</th>
+                                    <th>Image</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        {{ $notifications->links() }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+@endsection
+
+@section('js')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<script>
+  
+  $(".js-select2").select2({
+            closeOnSelect : false,
+            placeholder : "Select Users",
+            // allowHtml: true,
+            allowClear: true,
+            tags: true // создает новые опции на лету
+        });
+    
+</script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $.validator.setDefaults({
+                submitHandler: function () {
+                    alert("Form successful submitted!");
+                }
+          
+            });
+
+
+ $(document).ready(function() {
+    $('.js-example-basic-multiple').select2();
+});
+ 
+            $('#quickForm').validate({
+                rules: {
+                    email: {
+                        required: true,
+                        email: true,
+                    },
+                    password: {
+                        required: true,
+                        minlength: 5
+                    },
+                    terms: {
+                        required: true
+                    },
+                },
+                messages: {
+                    email: {
+                        required: "Please enter a email address",
+                        email: "Please enter a vaild email address"
+                    },
+                    password: {
+                        required: "Please provide a password",
+                        minlength: "Your password must be at least 5 characters long"
+                    },
+                    terms: "Please accept our terms"
+                },
+                errorElement: 'span',
+                errorPlacement: function (error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+        });
+        $(".js-example-disabled").select2();
+$(".js-example-disabled-multi").select2();
+
+$(".js-programmatic-enable").on("click", function () {
+  $(".js-example-disabled").prop("disabled", false);
+  $(".js-example-disabled-multi").prop("disabled", false);
+});
+
+$(".js-programmatic-disable").on("click", function () {
+  $(".js-example-disabled").prop("disabled", true);
+  $(".js-example-disabled-multi").prop("disabled", true);
+});
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+
+            bsCustomFileInput.init();
+
+            $("#example1").DataTable({
+                "responsive": true,
+                "autoWidth": false,
+            });
+            $('#example2').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+            });
+        });
+    </script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js"></script>
+
+
+
+@endsection

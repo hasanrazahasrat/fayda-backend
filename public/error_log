@@ -1,0 +1,1 @@
+[14-Oct-2020 10:38:44 UTC] PHP Fatal error:  Access level to App\Models\PromotionalOrder::$timestamps must be public (as in class Illuminate\Database\Eloquent\Model) in /home/akpharmacycom/public_html/fayda/app/Models/PromotionalOrder.php on line 0
