@@ -46,11 +46,18 @@ jobs:
         with:
           name: php-app
 
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AzureAppService_PublishProfile_bc05be320ad24adea3876a5e43bda983 }}
+
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
         with:
           app-name: 'salesdepartment'
           slot-name: 'production'
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile_bc05be320ad24adea3876a5e43bda983 }}
-          package: .
+          package: ./deployment
+
+      - name: logout
+        run: |
+          az logout
