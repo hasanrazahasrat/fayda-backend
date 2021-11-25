@@ -80,7 +80,7 @@ class SyncProducts extends Command
                 'points' => '20',
                 'status' => 1,
                 'images' => Arr::get($picture, 'picture_url'),
-                'merchant_id' => '1',
+                'merchant_id' => '2',
                 'external_id' => Arr::get($category, 'info.id')
             ];
 
@@ -118,10 +118,9 @@ class SyncProducts extends Command
                 'price' => Arr::get($product, 'info.default_price'),
                 'points' => '0',
                 'status' => 1,
-                'user_id' => 1,
+                'user_id' => 2,
                 'user_type' => 'merchant',
                 'category_id' => $category->id ?? null,
-                'merchant_id' => '1',
                 'external_id' => Arr::get($product, 'info.id')
             ];
 
