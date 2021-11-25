@@ -356,14 +356,10 @@ class UpdatedController extends Controller
                 'message' => 'No User Found',
             ], 404);
         }else{
-            $category = Category::all();
-            /*$checkFavorite = Favorite::where('user_id', '=', $user->id)->get();
-            $item = [];
-            foreach ($checkFavorite as $checkFavorites)
-            {
-                array_push();
-                $item = Item::where('id' , '=', $checkFavorites->product_id)->get();
-            }*/
+            $merchantId = $request->input('merchant_id');
+            $category = Category::when(!is_null($merchantId), function ($query) use ($merchantId) {
+                $query->where('merchant_id', $merchantId);
+            })->get();
 
             $special_deals = Item::with('images')->where('special_deals', '=', 1)->get();
 
@@ -385,6 +381,7 @@ class UpdatedController extends Controller
                 'Favourite_Item' => $user->favorites,
                 'special_deals' => $special_deals
             ];
+
             return response()->json([
                 'status' => true,
                 'message' => 'Dashboard',
