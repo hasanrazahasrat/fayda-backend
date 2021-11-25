@@ -22,7 +22,7 @@ Route::group(['as' => 'api.'], function () {
     Route::put('profile/{user}', [Api\ProfileController::class, 'update']);
     Route::get('user/{user}', [Api\UserController::class, 'index']);
     /*Updated Work*/
-    
+
     Route::post('promotional_order', [Api\UpdatedController::class, 'AddPromotionalOrder']);
     Route::post('loginapi', [Api\UpdatedController::class, 'loginapi']);
     Route::post('pin-verification', [Api\UpdatedController::class, 'pinVerification']);
@@ -33,6 +33,7 @@ Route::group(['as' => 'api.'], function () {
     Route::get('get-promotional-products', [Api\UpdatedController::class, 'getPromotionalProducts']);
     Route::post('add-to-favorite', [Api\UpdatedController::class, 'addtoFavorite']);
     Route::post('remove-from-favorite', [Api\UpdatedController::class, 'removefromFavorite']);
+    Route::get('merchants', [Api\UpdatedController::class, 'getMerchants']);
     Route::get('dashboard', [Api\UpdatedController::class, 'getDashboard']);
     Route::get('get-products', [Api\UpdatedController::class, 'getProducts']);
     Route::post('add-to-products', [Api\UpdatedController::class, 'addtoCart']);
