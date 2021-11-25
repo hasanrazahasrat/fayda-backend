@@ -27,17 +27,16 @@ class Item extends Model
     {
         return  $this->belongsTo(Category::class);
     }
-    
-    public function images() 
+
+    public function images()
     {
-        return $this->hasMany(ItemImage::class);
+        return $this->hasMany(ItemImage::class, 'item_id');
     }
 
     public function getPointsAttribute($value)
     {
         $category = $this->category;
-
         return ($category->points * $this->price);
     }
-    
+
 }

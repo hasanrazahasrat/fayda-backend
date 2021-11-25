@@ -13,7 +13,7 @@ class AsarAlJawaal
     protected $client;
 
     protected $headers = [
-        'language'  => 'en-us',
+        'language'  => 'en',
         'show_sensitive_data' => '1',
         'time_zone' => 'UTC +02:15'
     ];
@@ -26,10 +26,10 @@ class AsarAlJawaal
 
     public function getCategories()
     {
-        $products = $this->getCatalog("2");
+        $products = $this->getCatalog("2", 0);
 
         $count = Arr::get($products, 'category_total_records');
-        $data = Arr::get($products, 'result_set.catalogData.product');
+        $data = Arr::get($products, 'catalogData.category');
 
         return [
             'count' => $count,
@@ -39,18 +39,28 @@ class AsarAlJawaal
 
     public function getProducts()
     {
-        $products = $this->getCatalog();
+        $apiProducts = (new self())->getCatalog('3');
+        $apiProducts = Arr::get($apiProducts, 'catalogData.product');
+        $apiVariants = (new self())->getCatalog('4');
 
-        $count = Arr::get($products, 'product_total_records');
-        $data = Arr::get($products, 'result_set.catalogData.product');
+        $variants = array_map(function ($variant) use($apiProducts) {
+            $product = Arr::first($apiProducts, function ($p) use($variant) {
+                return $p['info']['id'] == $variant['info']['product_id'];
+            });
+            $variant['product'] = $product;
+
+            return $variant;
+        }, Arr::get($apiVariants, 'catalogData.variants', []));
+
+        $count = Arr::get($apiVariants, 'variant_total_records');
 
         return [
             'count' => $count,
-            'data'  => $data
+            'data'  => $variants,
         ];
     }
 
-    public function getCatalog($type = "3")
+    public function getCatalog($type = "3", $page = 1)
     {
         $headers = $this->headers + [
             'source_id' => (string) Str::uuid(),
@@ -63,8 +73,8 @@ class AsarAlJawaal
                 "country_code" => "682",
                 "currency_id" => "12",
                 "store_id" => "1",
-                "start_index" => "1",
-                "page_size" => "5",
+                "start_index" => $page,
+                "page_size" => "999",
                 "sort_flag" => "DESC",
                 "sort_by" => "Creation_Date",
                 "type" => $type
@@ -86,7 +96,7 @@ class AsarAlJawaal
             ->withHeaders($headers)
             ->post('/v1/order', [
 
-            ])
+            ]);
 
     }
 

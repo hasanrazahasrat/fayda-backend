@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Http\Controllers\Admin;
-
 
 use App\Models\Merchant;
 use Illuminate\Http\Request;
@@ -14,6 +12,7 @@ class MerchantController
         $merchants = Merchant::orderBy('id', 'desc')->paginate(10);
         return view('admin.merchant.view', compact('merchants'));
     }
+
     public function create()
     {
         return view('admin.merchant.add');

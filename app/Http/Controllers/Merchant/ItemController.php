@@ -15,32 +15,36 @@ class ItemController extends Controller
 {
     public function index()
     {
-        $items = Item::with('category')->get();
+        $items = Item::with('category', 'images')->get();
         return view('merchant.items.view', compact('items'));
     }
     public function create()
     {
-        $categories = Category::all();
+        $categories = Category::where('merchant_id', auth('merchant')->id())->get();
         $RoyalityPoint = RoyalityPoint::all();
+
         return view('merchant.items.add', compact('categories','RoyalityPoint'));
     }
 
     public function store(Request $request)
     {
-        // $request['status'] = 1;
-        // Item::create($request->all());
-        $files = $request->image;
-        $images = [];
-        foreach($files as $file)
-        {
-            $images[]['image'] = $file->store('images');
+        $itemData = $request->except('_token', 'image');
+        $itemData['user_id'] = auth('merchant')->id();
+        $itemData['user_type'] = 'merchant';
+        $itemData['status'] = 1;
+
+        $item = Item::create($itemData);
+        if ($request->hasFile('image')) {
+            $images = [];
+            foreach ($request->file('image') as $image) {
+                $images[] = [
+                    'image' => $image->store('product-images', 'public')
+                ];
+            }
+
+            $item->images()->createMany($images);
         }
-        $u_data =session()->all();
-        
-        $request['status'] = 1;
-        $request['user_id'] = $u_data['login_merchant_59ba36addc2b2f9401580f014c7f58ea4e30989d'];
-        $request['user_type'] = 'merchant';
-        Item::create($request->except('image'))->images()->createMany($images);
+
         return redirect()->route('merchant.item.index');
     }
 
@@ -53,38 +57,25 @@ class ItemController extends Controller
 
     public function update(Request $request, Item $item)
     {
-        $ItemImages = ItemImage::all();
-        foreach($ItemImages as $ItemImage)
-        {
-            
-            if($ItemImage->item_id == $item->id)
-            { 
-                ItemImage::where('item_id', $item->id)->delete();
+        $itemData = $request->except('_token', 'image');
+        $item->update($itemData);
+
+        if ($request->hasFile('image')) {
+            $images = [];
+            foreach ($request->file('image') as $image) {
+                $images[] = [
+                    'image' => $image->store('product-images', 'public')
+                ];
             }
-        }
-       
-        $files = $request->image;
-        foreach($files as $file)
-        {
-         
-            $images = $file->store('images');
-            //ItemImage::where('item_id',$item->id)->update(['image' => $images ]);
-            //ItemImage::where('item_id', $item->id)->firstorfail()->delete();
-            
-            $data[] = [
-            'image' => $images,
-            'item_id' => $item->id,
-            'updated_at' => date('Y-m-d'),
-            ];
-               
+
+            foreach ($item->images as $image) {
+                Storage::disk('public')->delete($image->getRawOriginal('image'));
+            }
+            $item->images()->delete();
+            $item->images()->createMany($images);
         }
 
-          ItemImage::insert($data);
-
-        
-        $item->update($request->all());
         return redirect()->route('merchant.item.index');
-
     }
 
     public function destroy(Item $item)

@@ -37,13 +37,13 @@
                                     <input type="text" name="name" class="form-control" id="name"
                                            placeholder="Enter item Name">
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="first_name">اسم الصنف</label>
                                     <input type="text" name="name_ar" class="form-control" id="name"
                                            placeholder="اسم الصنف">
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="last_name">Select Category</label>
                                     <select class="form-control" name="category_id" id="category_id">
@@ -65,23 +65,17 @@
                                                    placeholder="Enter ...">
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Points</label>
-                                            <input type="text" name="points" id="points" class="form-control" placeholder="">
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="first_name">Detail</label>
                                     <textarea class="form-control" name="details" id="details"></textarea>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="first_name">التفاصيل</label>
                                     <textarea class="form-control" name="details_ar" id="details"></textarea>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="image">Image</label>
                                     <input type="file" name="image[]" class="form-control" id="image"
@@ -147,28 +141,28 @@
                 }
             });
         });
-        
+
         $(document).ready(function(){
           $("#price").focusout(function(){
             var rp = $("#r_p").val();
             var sr = $("#s_r").val();
-            
+
             var price = $("#price").val();
-            var point = price/sr; 
+            var point = price/sr;
              $("#points").val(point);
           });
-          
+
           $("#points").focusout(function(){
             var rp = $("#r_p").val();
             var sr = $("#s_r").val();
-            
+
             var point = $("#points").val();
-            var price = point*sr; 
+            var price = point*sr;
              $("#price").val(price);
           });
-         
+
         });
-        
+
     </script>
 
     <script type="text/javascript">

@@ -1,5 +1,5 @@
 @extends('merchant.layout.master')
-@section('title', 'View items')
+@section('title', 'View categories')
 
 @section('css')
 @endsection
@@ -9,12 +9,12 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>View items</h1>
+                    <h1>View categories</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">View items</li>
+                        <li class="breadcrumb-item active">View categories</li>
                     </ol>
                 </div>
             </div>
@@ -26,7 +26,7 @@
                 <div class="col-sm-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">View items details</h3>
+                            <h3 class="card-title">View categories details</h3>
                         </div>
                         <div class="card-body">
                             <table id="example1" class="table table-bordered table-striped">
@@ -34,32 +34,22 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Image</th>
-                                    <th>Item</th>
-                                     <th>صنف</th>
-                                    <th>Catogory Name</th>
-                                    <th>Price</th>
-                                    <th>Points</th>
+                                    <th>Category Title</th>
+                                    <th>اسم الفئه</th>
                                     <th>Actions</th>
                                 </tr>
                                 </thead>
-                                @foreach( $items as $item)
-                                @if ($item->user_type == 'merchant' && $item->user_id == Session::get('login_merchant_59ba36addc2b2f9401580f014c7f58ea4e30989d') )
+                                <?php $sno = 1; ?>
+                                @foreach( $categories as $cat )
                                     <tbody>
                                     <tr>
-                                        <td>{{$item->id}}</td>
+                                        <td>{{$sno++}}</td>
+                                        <td><img src="{{$cat->images}}" width="50" height="50"> </td>
+                                        <td>{{$cat->title}}</td>
+                                        <td>{{$cat->title_ar}}</td>
                                         <td>
-                                            <div style="width:80px">
-                                                <img style="width:100%" src="{{$item->images->first()->image ?? 'https://via.placeholder.com/80'}}">
-                                            </div>
-                                        </td>
-                                        <td>{{$item->name}}</td>
-                                         <td>{{$item->name_ar}}</td>
-                                        <td>{{$item->category ? $item->category->title : ''}}</td>
-                                        <td>{{$item->price}}</td>
-                                        <td>{{$item->points}}</td>
-                                        <td>
-                                            <form action="{{ route('merchant.item.destroy',$item->id) }}" method="POST">
-                                                <a href="{{route('merchant.item.edit', $item->id)}}" class="btn btn-info"><i
+                                            <form action="{{ route('merchant.category.destroy', $cat->id) }}" method="POST">
+                                                <a href="{{route('merchant.category.edit', $cat->id)}}" class="btn btn-info"><i
                                                         class="fa fa-pencil"></i> Edit</a>
                                                 @csrf
                                                 @method('DELETE')
@@ -71,17 +61,13 @@
                                         </td>
                                     </tr>
                                     </tbody>
-                                    @endif
                                 @endforeach
                                 <tfoot>
                                 <tr>
                                     <th>#</th>
                                     <th>Image</th>
-                                    <th>Item</th>
-                                     <th>صنف</th>
-                                    <th>Catogory Name</th>
-                                    <th>Price</th>
-                                    <th>Points</th>
+                                    <th>Category Title</th>
+                                    <th>اسم الفئه</th>
                                     <th>Actions</th>
                                 </tr>
                                 </tfoot>
