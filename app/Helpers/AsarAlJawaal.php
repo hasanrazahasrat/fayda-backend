@@ -90,7 +90,7 @@ class AsarAlJawaal
         $headers = $this->headers + [
             'source_id' => (string) Str::uuid(),
         ];
-
+        $orderObject = $cartItems;
         $orderObject = [
             "info" => [
                 "process_type" => 1
@@ -130,16 +130,18 @@ class AsarAlJawaal
             ];
         }
 
-        logger("Asar Al Jawaal request ");
-        logger($orderObject);
-
-        $response = $this->client
+        $response = Http::baseUrl($this->baseUrl)
             ->withToken(self::$accessToken)
             ->withHeaders($headers)
             ->post('/v1/order', $orderObject);
 
-        $json = $response->body();
-        logger("Asal Al Jawaal response {$json}");
+        $json = $response->json();
+
+        if (!Arr::get($json, 'info.id')) {
+            $items = json_encode($orderObject['items']);
+            logger("Asar Al jawaal order fail for user {$user->id} : {$user->email} --> {$items}");
+            logger($response->body());
+        }
     }
 
     protected function authenticate()
