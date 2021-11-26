@@ -7,6 +7,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use App\Models\Category;
 use App\Models\Order;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -43,9 +44,9 @@ class User extends Authenticatable
     protected $appends = [
         'membership'
     ];
-    
+
    protected $primaryKey = 'id';
-    
+
 
     public function getTierAttribute()
     {
@@ -74,43 +75,52 @@ class User extends Authenticatable
         }
     }
 
+    public function getMobileAttribute($value)
+    {
+        if (Str::startsWith($value, '+')) {
+            return $value;
+        }
+
+        return "+{$value}";
+    }
+
     public function getMembershipAttribute()
     {
         $tier = $this->tier;
 
         return $tier->membership()->first();
     }
-    
+
     public function order(){
-        
+
         return $this->hasMany(Order::class);
     }
-    
+
     public function getProfileImageAttribute($value)
     {
         return asset('storage/' . $value);
     }
-    
+
       public function getCoverPhotoAttribute($value)
     {
         return asset('storage/' . $value);
     }
-    
+
     public function favorites()
     {
         return $this->hasMany(Favorite::class,'user_id');
     }
-    
+
     public function cart()
     {
         return $this->hasMany(Cart::class,'user_id');
     }
-    
+
     public function promotionalorder()
     {
         return $this->hasMany(PromotionalOrder::class);
     }
-    
+
     public function category()
     {
         return $this->belongsTo(Category::class);

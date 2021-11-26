@@ -9,6 +9,4 @@ Route::group(['as' => 'merchant.'], function () {
     Route::resource('item', Merchant\ItemController::class);
     Route::resource('category', Merchant\CategoryController::class);
     Route::resource('document', Merchant\DocumentController::class);
-
-    Route::get('test', [Merchant\DashboardController::class, 'test']);
 });
