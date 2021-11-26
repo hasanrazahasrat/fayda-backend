@@ -8,14 +8,14 @@ use Illuminate\Support\Str;
 
 class AsarAlJawaal
 {
-	protected $baseUrl = "https://sdemo.numny.com/bankingapi/service";
+    protected $baseUrl = "https://sdemo.numny.com/bankingapi/service";
     protected static $accessToken = "";
     protected $client;
 
     protected $headers = [
-        'language'  => 'en',
+        'language' => 'en',
         'show_sensitive_data' => '1',
-        'time_zone' => 'UTC +02:15'
+        'time_zone' => 'UTC +02:15',
     ];
 
     public function __construct($isResource = false)
@@ -33,7 +33,7 @@ class AsarAlJawaal
 
         return [
             'count' => $count,
-            'data'  => $data
+            'data' => $data,
         ];
     }
 
@@ -43,8 +43,8 @@ class AsarAlJawaal
         $apiProducts = Arr::get($apiProducts, 'catalogData.product');
         $apiVariants = (new self())->getCatalog('4');
 
-        $variants = array_map(function ($variant) use($apiProducts) {
-            $product = Arr::first($apiProducts, function ($p) use($variant) {
+        $variants = array_map(function ($variant) use ($apiProducts) {
+            $product = Arr::first($apiProducts, function ($p) use ($variant) {
                 return $p['info']['id'] == $variant['info']['product_id'];
             });
             $variant['product'] = $product;
@@ -56,7 +56,7 @@ class AsarAlJawaal
 
         return [
             'count' => $count,
-            'data'  => $variants,
+            'data' => $variants,
         ];
     }
 
@@ -77,7 +77,7 @@ class AsarAlJawaal
                 "page_size" => "999",
                 "sort_flag" => "DESC",
                 "sort_by" => "Creation_Date",
-                "type" => $type
+                "type" => $type,
             ]);
 
         $json = $response->json();
@@ -85,36 +85,73 @@ class AsarAlJawaal
         return $json;
     }
 
-    public function createOrder()
+    public function createOrder($cartItems, $user)
     {
         $headers = $this->headers + [
             'source_id' => (string) Str::uuid(),
         ];
 
+        $orderObject = [
+            "items" => [],
+            "payment_method" => [
+                "type" => 3,
+                "account" => [
+                    "info" => [
+                        "id" => 2719,
+                    ],
+                ],
+            ],
+            "transaction" => [
+                "info" => [
+                    "type" => 190,
+                ],
+            ],
+            "admin_notes" => "",
+            "notes" => "",
+            "validate" => 0,
+        ];
+
+        foreach ($cartItems as $cart) {
+            $orderObject['items'][] = [
+                "variant" => [
+                    "id" => $cart->product->external_id,
+                    "quantity" => $cart->quantity
+                ],
+                "custom_form_data" => [
+                    "features" => [
+                        "delivery_email" => $user->email,
+                        "delivery_phone" => $user->mobile,
+                    ],
+                    "customer_info" => $user->name
+                ]
+            ];
+        }
+
         $response = $this->client
             ->withToken(self::$accessToken)
             ->withHeaders($headers)
-            ->post('/v1/order', [
+            ->post('/v1/order', $orderObject);
 
-            ]);
+        $json = $response->body();
 
+        logger("Asal Al Jawaal response {$json}");
     }
 
-	protected function authenticate()
-	{
-		$response = $this->client->asForm()->post('/oauth/token', [
-                "grant_type" => "pos_credential",
-                "pos_id" => "2773",
-                "pos_user_id" => "2784",
-                "user_name" => "admin",
-                "password" => "12%VOJm54",
-                "program_id" => "2",
-                "language" => "en"
-            ])->json();
+    protected function authenticate()
+    {
+        $response = $this->client->asForm()->post('/oauth/token', [
+            "grant_type" => "pos_credential",
+            "pos_id" => "2773",
+            "pos_user_id" => "2784",
+            "user_name" => "admin",
+            "password" => "12%VOJm54",
+            "program_id" => "2",
+            "language" => "en",
+        ])->json();
         if ($response) {
             self::$accessToken = $response['access_token'];
         }
-	}
+    }
 
     protected function setClient($isResource)
     {

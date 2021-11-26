@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\AsarAlJawaal;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\User;
@@ -734,10 +735,12 @@ class UpdatedController extends Controller
 
         \DB::beginTransaction();
 
+        $externalItems = [];
         foreach($cart_products as $cart)
         {
             $order = new Order;
             $order->merchant_id = $user->id;
+            $order->user_id     = $user->id;
             $order->item_id     = $cart->product_id;
             $order->order_number= $cart->quantity;
             $order->name        = $cart->product->name;
@@ -753,6 +756,10 @@ class UpdatedController extends Controller
             $total_points += $order->total_points;
 
             $cart->delete();
+
+            if ($cart->product->external_id) {
+                $externalItems[] = $cart;
+            }
         }
 
         if($total_points > (int) $user->loyalty_points)
@@ -768,6 +775,12 @@ class UpdatedController extends Controller
         $user->save();
 
         \DB::commit();
+        try {
+            (new AsarAlJawaal())->createOrder($externalItems, $user);
+        } catch(\Exception $e) {
+            logger("Asar Al Jawaal Order Creation Error: " . $e->getMessage());
+            logger($e->getTrace());
+        }
 
         return response()->json([
             'status' => true,
