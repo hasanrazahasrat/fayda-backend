@@ -92,6 +92,9 @@ class AsarAlJawaal
         ];
 
         $orderObject = [
+            "info" => [
+                "process_type" => 1
+            ],
             "items" => [],
             "payment_method" => [
                 "type" => 3,
@@ -127,13 +130,15 @@ class AsarAlJawaal
             ];
         }
 
+        logger("Asar Al Jawaal request ");
+        logger($orderObject);
+
         $response = $this->client
             ->withToken(self::$accessToken)
             ->withHeaders($headers)
             ->post('/v1/order', $orderObject);
 
         $json = $response->body();
-
         logger("Asal Al Jawaal response {$json}");
     }
 
