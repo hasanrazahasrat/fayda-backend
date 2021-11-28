@@ -24,7 +24,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <form role="form" id="quickForm" method="POST" action="{{ route('admin.merchant.store') }}">
+                    <form role="form" id="quickForm" method="POST" action="{{ route('admin.merchant.store') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="card card-primary">
                             <div class="card-header" style="background-color: #8cc63f;">
@@ -46,13 +46,13 @@
                                     <input type="text" name="last_name" class="form-control" id="last_name"
                                            placeholder="Enter last name">
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="last_name">الاسم الكامل</label>
                                     <input type="text" name="last_name_ar" class="form-control" id="last_name_ar"
                                            placeholder="أدخل الاسم الكامل">
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="email">Email</label>
                                     <input type="email" name="email" class="form-control" id="email"
@@ -73,18 +73,22 @@
                                     <input type="text" name="company" class="form-control" id="company"
                                            placeholder="Enter company">
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="company">الشركه</label>
                                     <input type="text" name="company_ar" class="form-control" id="company_ar"
                                            placeholder="أدخل الشركه">
                                 </div>
-                                
+
                                 <!--<div class="form-group">-->
                                 <!--    <label for="company">Rating</label>-->
                                     <input type="hidden" name="rating"  class="form-control" id="rating"
                                            placeholder="Enter rating">
                                 <!--</div>-->
+                                <div class="form-group">
+                                    <label for="image">Logo</label>
+                                    <input type="file" name="logo" class="form-control mt-2" id="image">
+                                </div>
                             </div>
                             <div class="card-footer">
                                 <button type="submit" class="btn " style="background-color: #8cc63f;">Save</button>

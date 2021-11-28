@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Merchant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MerchantController
 {
@@ -20,9 +21,15 @@ class MerchantController
 
     public function store(Request $request)
     {
-        $request['status'] = 1;
-        $request['password'] = bcrypt($request->get('password'));
-        Merchant::create($request->all());
+        $data = $request->except('_token');
+        $data['status'] = 1;
+        $data['password'] = bcrypt($request->get('password'));
+
+        if ($request->hasFile('logo')) {
+            $data['logo_image'] = $request->logo->store('merchant-logos', 'public');
+        }
+
+        Merchant::create($data);
         return redirect()->route('admin.merchant.index');
     }
 
@@ -33,16 +40,23 @@ class MerchantController
 
     public function update(Request $request, Merchant $merchant)
     {
-        if($request->has('password')){
-            $request['password'] = bcrypt($request->get('password'));
+        $data = [];
+        if($request->filled('password')){
+            $data['password'] = bcrypt($request->input('password'));
         }
-        $merchant->update($request->all());
+        if ($request->hasFile('logo')) {
+            Storage::disk('public')->delete($merchant->getRawOriginal('logo_image'));
+            $data['logo_image'] = $request->logo->store('merchant-logos', 'public');
+        }
+
+        $merchant->update($data);
         return redirect()->route('admin.merchant.index');
 
     }
 
     public function destroy(Merchant $merchant)
     {
+        Storage::disk('public')->delete($merchant->getRawOriginal('logo_image'));
         $merchant->delete();
         return redirect()->route('admin.merchant.index');
     }
