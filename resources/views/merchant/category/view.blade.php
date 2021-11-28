@@ -36,6 +36,7 @@
                                     <th>Image</th>
                                     <th>Category Title</th>
                                     <th>اسم الفئه</th>
+                                    <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                                 </thead>
@@ -47,6 +48,7 @@
                                         <td><img src="{{$cat->images}}" width="50" height="50"> </td>
                                         <td>{{$cat->title}}</td>
                                         <td>{{$cat->title_ar}}</td>
+                                        <td>{{$cat->status ? 'Active' : 'In Active'}}</td>
                                         <td>
                                             <form action="{{ route('merchant.category.destroy', $cat->id) }}" method="POST">
                                                 <a href="{{route('merchant.category.edit', $cat->id)}}" class="btn btn-info"><i

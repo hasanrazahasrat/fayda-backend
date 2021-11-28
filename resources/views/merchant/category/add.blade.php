@@ -54,6 +54,15 @@
                                     <input type="file" name="image" class="form-control" id="image"
                                            placeholder="Enter first Name">
                                 </div>
+
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="status" id="status" value="1" {{ old('status') ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="status">
+                                            {{ __('Status') }}
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="card-footer">

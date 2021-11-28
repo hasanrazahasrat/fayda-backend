@@ -34,7 +34,7 @@ class CategoryController extends Controller
             $data['images'] = $request->file('image')->store('images', 'public');
         }
 
-        $data['status'] = 1;
+        $data['status'] = $request->input('status', '0');;
         Category::create($data);
 
         return redirect()->route('merchant.category.index');
@@ -58,7 +58,7 @@ class CategoryController extends Controller
             Storage::disk('public')->delete($category->getRawOriginal('images'));
             $data['images'] = $request->file('image')->store('images', 'public');
         }
-
+        $data['status'] = $request->input('status', '0');
         $category->update($data);
         return redirect()->route('merchant.category.index');
     }

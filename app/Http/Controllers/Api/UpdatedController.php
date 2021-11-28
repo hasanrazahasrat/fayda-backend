@@ -360,7 +360,7 @@ class UpdatedController extends Controller
             $merchantId = $request->input('merchant_id');
             $category = Category::when(!is_null($merchantId), function ($query) use ($merchantId) {
                 $query->where('merchant_id', $merchantId);
-            })->get();
+            })->where('status', 1)->get();
 
             $special_deals = Item::with('images')->where('special_deals', '=', 1)->get();
 

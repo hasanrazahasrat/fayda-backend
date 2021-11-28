@@ -10,7 +10,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $category = Category::all();
+        $category = Category::where('status', 1)->get();
             return response()->json([
                 'status' => 'Success',
                 'message' => 'Category Fetch Successfully',
