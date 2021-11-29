@@ -78,7 +78,7 @@ class SyncProducts extends Command
                 'title' => Arr::get($info, 'localization_name'),
                 'title_ar' => Arr::get($info_ar, 'localization_name'),
                 'points' => '20',
-                'status' => 1,
+                // 'status' => 1,
                 'images' => Arr::get($picture, 'picture_url'),
                 'merchant_id' => '2',
                 'external_id' => Arr::get($category, 'info.id')
@@ -110,33 +110,46 @@ class SyncProducts extends Command
 
             $category_id = Arr::get($product, 'product.info.category_id');
             $category = Category::where('external_id', $category_id)->first();
-            $object = [
-                'name' => Arr::get($info, 'localization_name'),
-                'name_ar' => Arr::get($info_ar, 'localization_name'),
-                'details' => Arr::get($info, 'description'),
-                'details_ar' => Arr::get($info_ar, 'description'),
-                'price' => Arr::get($product, 'info.default_price'),
-                'points' => '0',
-                'status' => 1,
-                'user_id' => 2,
-                'user_type' => 'merchant',
-                'category_id' => $category->id ?? null,
-                'external_id' => Arr::get($product, 'info.id')
-            ];
+            $price = Arr::first($product['prices_fees'], function ($price) {
+                return Arr::get($price, 'CountryCode') == 682;
+            });
 
-            if ($object['name'] && $object['category_id']) {
-                $item = Item::updateOrCreate([
+            if ($price) {
+                $object = [
+                    'name' => Arr::get($info, 'localization_name'),
+                    'name_ar' => Arr::get($info_ar, 'localization_name'),
+                    'details' => Arr::get($info, 'description'),
+                    'details_ar' => Arr::get($info_ar, 'description'),
+                    'price' => Arr::get($price, 'retailprice'),
+                    'points' => '0',
+                    'status' => 1,
+                    'user_id' => 2,
+                    'user_type' => 'merchant',
+                    'category_id' => $category->id ?? null,
                     'external_id' => Arr::get($product, 'info.id')
-                ], $object);
+                ];
 
-                ItemImage::updateOrCreate([
-                    'item_id' => $item->id
-                ], [
-                    'item_id' => $item->id,
-                    'image' => $picture['picture_url'] ?? ''
-                ]);
+                if ($object['name'] && $object['category_id']) {
+                    $item = Item::updateOrCreate([
+                        'external_id' => Arr::get($product, 'info.id')
+                    ], $object);
 
-                $this->info("Synced Product {$object['external_id']} -> {$object['name']}");
+                    ItemImage::updateOrCreate([
+                        'item_id' => $item->id
+                    ], [
+                        'item_id' => $item->id,
+                        'image' => $picture['picture_url'] ?? ''
+                    ]);
+
+                    $this->info("Synced Product {$object['external_id']} -> {$object['name']}");
+                }
+            } else {
+                if ($item = Item::whereNotNull('external_id')->where('external_id', $object['external_id'])->first()) {
+                    $item->images()->delete();
+                    $item->delete();
+
+                    $this->warn("Deleting item with external_id {$object['external_id']}");
+                }
             }
         }
         $this->info('Done products');
