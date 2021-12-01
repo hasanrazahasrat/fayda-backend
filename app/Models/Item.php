@@ -36,7 +36,7 @@ class Item extends Model
     public function getPointsAttribute($value)
     {
         $category = $this->category;
-        return ($category->points * $this->price);
+        return number_format($category->points * $this->price);
     }
 
 }
