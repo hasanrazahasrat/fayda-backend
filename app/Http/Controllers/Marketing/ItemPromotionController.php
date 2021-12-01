@@ -24,12 +24,11 @@ class ItemPromotionController extends Controller
     }
     public function create()
     {
-        
+
         $categories = PromotionsCategory::all();
         $marketings = Merchant::all();
-        //$users = User::all();
         $items = Item::all();
-        return view('marketing.item-wise-promotion.add',compact('categories','marketings'.'items'));
+        return view('marketing.item-wise-promotion.add',compact('categories', 'marketings', 'items'));
     }
 
     public function store(Request $request)
@@ -45,26 +44,30 @@ class ItemPromotionController extends Controller
         $ItemPromotion->description       =$request->ip_detail;
         $ItemPromotion->image          = $path;
         $ItemPromotion->save();
+
         return redirect()->route('marketing.item_promotion.index');
     }
 
-    public function edit($id)
+    public function edit($item_promotion)
     {
-        $ipro = PromotionsItem::find($id);
+        $ipro = PromotionsItem::find($item_promotion);
         $categories = PromotionsCategory::all();
+
         return view('marketing.item-wise-promotion.edit', compact('categories','ipro' ));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $item_promotion)
     {
-        $item = Item::find($id);
+        $item = PromotionsItem::find($item_promotion);
         if($request->hasFile('itemimage'))
         {
-            //dd($request->file('image')->store('images'));
+            Storage::disk('public')->delete($item->getRawAttribute('image'));
             $item->image = $request->file('itemimage')->store('images');
         }
-        
-        $item->images = $path;
+
+        $item->promotions_category_id      = $request->promotions_category_id;
+        $item->title            = $request->item;
+        $item->description       =$request->description;
         $item->save();
         return redirect()->route('marketing.item_promotion.index');
     }

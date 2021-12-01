@@ -44,10 +44,8 @@
                   <div class="form-group">
                     <label for="promotions_category_id">Promotional Category</label>
                     <select name="promotions_category_id" id="promotions_category_id" class="form-control">
-                        <option value="none">-- Select Category --</option>
                         @foreach($categories as $category)
                         <option value="{{ $category->id }}" {{ ( $ipro->promotions_category_id == $category->id  ) ? 'selected' : null   }}> {{ $category->title }}</option>
-                        <!-- <option value="{{ $category->id }}">{{ $category->title }}</option> -->
                         @endforeach
                     </select>
                   </div>
@@ -55,7 +53,7 @@
                       <label for="last_name"> Enter Item</label>
                       <input type="text" class="form-control" name="item" id="item" value="{{ $ipro->title }}" />
                   </div>
-                  
+
                   <div class="form-group">
                       <label for="first_name">Detail</label>
                       <textarea class="form-control" name="description">{{ $ipro->description }}</textarea>
@@ -63,13 +61,13 @@
                   <div class="form-group">
                     <label for="image">Image</label>
                     <div style ="width:80px">
-                      <img style="width:100%"src="/storage/itemimages/{{$ipro->image}}">
+                      <img style="width:100%"src="{{$ipro->image}}">
                     </div>
                     <input type="file" name="itemimage" class="form-control" id="itemimage">
-                  </div>  
-                        
                   </div>
-                   
+
+                  </div>
+
                 <!-- /.card-body -->
                 <div class="card-footer">
                   <button type="submit" class="btn " style="background-color: #8cc63f;">Save</button>
@@ -79,7 +77,7 @@
             <!-- /.card -->
             </div>
           <!--/.col (left) -->
-          
+
         </div>
         <!-- /.row -->
       </div><!-- /.container-fluid -->
@@ -89,7 +87,7 @@
 
 
 @section('js')
-    
+
     <script type="text/javascript">
 $(document).ready(function () {
   $.validator.setDefaults({
@@ -141,7 +139,7 @@ $(document).ready(function () {
 $(document).ready(function () {
   bsCustomFileInput.init();
 });
-</script>    
+</script>
 
 
 @endsection

@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class ItemPromotion extends Model
 {
     protected $fillable = [
-        'p_category','item','ip_detail','image'	
+        'p_category','item','ip_detail','image'
     ];
-    
+
     public function getImageAttribute($value)
     {
-        return asset('storage/' . $value);
+        return asset('files/' . $value);
     }
 }

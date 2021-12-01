@@ -13,7 +13,7 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href=".admin/dasboard">Home</a></li>
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
                         <li class="breadcrumb-item active">Item promotion</li>
                     </ol>
                 </div>
@@ -65,19 +65,19 @@
                                 <!--</div>-->
                                 <div class="form-group">
                                     <label for="promotions_category_id">Promotional Category</label>
-                                    <select name="promotions_category_id" id="promotions_category_id" class="form-control">
-                                        <option value="none">-- Select Category --</option>
+                                    <select name="promotions_category_id" id="promotions_category_id" class="form-control" required>
+                                        <option value="">-- Select Category --</option>
                                         @foreach($categories as $category)
                                         <option value="{{ $category->id }}">{{ $category->title }}</option>
                                         @endforeach
                                     </select>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="last_name"> Enter Item</label>
                                     <input type="text" class="form-control" name="item" id="item" />
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="first_name">Detail</label>
                                     <textarea class="form-control" name="ip_detail"></textarea>

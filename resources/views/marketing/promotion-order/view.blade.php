@@ -50,12 +50,12 @@
                     @foreach($order_datas as $order_data)
 
                     @if($order->user_id == $order_data->user_id && $order->order_id == $order_data->order_id)
-                  
+
                   <tbody>
                     <tr>
                       <td>{{$sno++}}</td>
                       <td>{{$order->order_id}}</td>
-                     
+
                       <td>{{$order_data->user->name}}</td>
                        <td>
                          <!--  <a href="#" class="btn btn-warning">Pending</a> -->
@@ -80,28 +80,34 @@
                                               <th>Quantity</th>
                                           </tr>
                                           </thead>
-                 
+
                             <tbody>
-                                
-                
+
+
                     @foreach($order_datas as $order_data)
                     @if($order->user_id == $order_data->user_id && $order->order_id == $order_data->order_id)
                     <tr>
-                    <td>{{$order_data->promotionalorder->title}}</td>
-                    <td><img src="{{$order_data->promotionalorder->image}}" width="80" height="80"></td>
+                    <td>{{$order_data->promotionalorder ? $order_data->promotionalorder->title : ''}}</td>
+                    <td>
+                        @if($order_data->promotionalorder)
+                         <img src="{{$order_data->promotionalorder->image}}" width="80" height="80">
+                        @else
+                         -
+                        @endif
+                    </td>
                     <td>{{$order_data->quantity}}</td>
                      </tr>
                     @endif
                     @endforeach
-                               
+
                             </tbody>
-                           
+
                         </table>
                                     </div>
                                   </div>
                                 </div>
                               </div>
-                              
+
                           </td>
                     </tr>
 

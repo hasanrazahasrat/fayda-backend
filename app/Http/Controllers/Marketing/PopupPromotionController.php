@@ -23,12 +23,7 @@ class PopupPromotionController
     }
     public function create()
     {
-        $marketings = Merchant::all();
-       // $users = User::all();
-        $items = Item::all();
-        return view('marketing.popup-promotion.add', compact(
-            'marketings', 'users', 'categories'
-        ));
+        return view('marketing.popup-promotion.add');
     }
 
     public function store(Request $request)
@@ -48,10 +43,10 @@ class PopupPromotionController
         return redirect()->route('marketing.popup_promotion.index');
     }
 
-    public function edit($id)   
+    public function edit($id)
     {
         $ppro = ItemPromotion::find($id);
-        return view('marketing.popup-promotion.edit', compact('categories','ppro' ));
+        return view('marketing.popup-promotion.edit', compact('ppro' ));
     }
 
     public function update(Request $request, $id)
@@ -59,10 +54,12 @@ class PopupPromotionController
         $item = ItemPromotion::find($id);
         if($request->hasFile('image'))
         {
-            //dd($request->file('image')->store('images'));
+            Storage::disk('public')->delete($item->getRawAttribute('image'));
             $item->image = $request->file('image')->store('images');
         }
-        // dd($item->image);
+        $item->promotion_date      = $request->promotion_date;
+        $item->item            = $request->item;
+        $item->ip_detail      = $request->ip_detail;
         $item->save();
         return redirect()->route('marketing.popup_promotion.index');
     }
