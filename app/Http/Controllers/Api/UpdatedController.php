@@ -4,18 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\AsarAlJawaal;
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
 use App\Models\Category;
-use App\Models\User;
+use App\Models\EarnedPoint;
+use App\Models\Favorite;
+use App\Models\Item;
+use App\Models\Merchant;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\PromotionalOrder;
-use App\Models\Item;
-use App\Models\Favorite;
 use App\Models\Tier;
-use App\Models\Cart;
-use App\Models\Notification;
-use App\Models\EarnedPoint;
-use App\Models\Merchant;
-use Mail;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
@@ -23,18 +22,20 @@ use Illuminate\Support\Facades\DB;
 class UpdatedController extends Controller
 {
 
-    public function index(){
+    public function index()
+    {
 
     }
 
-    public function loginApi(Request $request){
+    public function loginApi(Request $request)
+    {
         $validator = \Validator::make($request->all(), [
             'merchant_id' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
-        }else{
+        } else {
             $id = $request->input('merchant_id');
             $user = User::where('merchant_id', '=', $id)->first();
             if ($user === null) {
@@ -42,7 +43,7 @@ class UpdatedController extends Controller
                     'status' => false,
                     'message' => 'No User Found',
                 ], 404);
-            }else{
+            } else {
                 // $code = "1234";
                 // Mail::send(['text'=>'emails.code'], ['code' => $code], function($message) use ($user){
                 //     $message->to("$user->email", $user->name)
@@ -60,19 +61,20 @@ class UpdatedController extends Controller
                     'status' => true,
                     'message' => 'Message Send',
                     'session_id' => $user->session_id,
-                    'user' => $user->only('id', 'mobile')
+                    'user' => $user->only('id', 'mobile'),
                 ], 201);
             }
         }
     }
 
-    public function pinVerification(Request $request){
+    public function pinVerification(Request $request)
+    {
         $validator = \Validator::make($request->all(), [
             'code' => 'nullable',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
-        }else{
+        } else {
             $session_id = $request->header('session-id');
             $user = User::where('session_id', '=', $session_id)->first();
             if ($user === null) {
@@ -80,203 +82,203 @@ class UpdatedController extends Controller
                     'status' => false,
                     'message' => 'Pin Code Not Valid',
                 ], 404);
-            }else{
+            } else {
                 $user->device_token = $request->device_token ?: $user->device_token;
-                $user->status       = true;
+                $user->status = true;
                 $user->save();
                 return response()->json([
                     'status' => true,
                     'message' => 'User Data',
-                    'session_id' => $session_id ,
-                    'data' => $user
+                    'session_id' => $session_id,
+                    'data' => $user,
                 ], 200);
             }
         }
     }
 
-    public function updateProfile(Request $request){
+    public function updateProfile(Request $request)
+    {
         $validator = \Validator::make($request->all(), [
             'mobile' => 'required|numeric',
             'email' => 'required|email',
             'business_address' => 'required',
-            'about_us'      => 'required',
+            'about_us' => 'required',
             'delivery_address' => 'sometimes|nullable',
             'profile_image' => 'sometimes|nullable',
             'profile_image_ext' => 'required_with:profile_image',
             'cover_photo' => 'sometimes|nullable',
             'cover_photo_ext' => 'required_with:cover_photo',
-            'device_token'  => 'sometimes|nullable',
+            'device_token' => 'sometimes|nullable',
             'business_name' => 'sometimes|nullable',
-            'name'          => 'required',
-            'notification_enabled' => 'sometimes|nullable|boolean'
+            'name' => 'required',
+            'notification_enabled' => 'sometimes|nullable|boolean',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
-        }else{
+        } else {
             $session_id = $request->header('session_id');
             $user = User::where('session_id', '=', $session_id)->first();
-            if($user == null && !empty($session_id)){
+            if ($user == null && !empty($session_id)) {
                 return response()->json([
                     'status' => false,
                     'message' => 'User not found',
                 ], 404);
-            }else{
+            } else {
                 $path = "";
-                if(!empty($request->profile_image))
-                {
+                if (!empty($request->profile_image)) {
                     $path = "dp/" . md5($request->profile_image) . '.' . $request->profile_image_ext;
                     file_put_contents(storage_path("app/public/" . $path), base64_decode($request->profile_image));
                     // $path = $request->file('profile_image')->store('dp');
                 }
-                 $path2 = "";
-                if(!empty($request->cover_photo))
-                {
+                $path2 = "";
+                if (!empty($request->cover_photo)) {
                     $path2 = "dp/" . md5($request->cover_photo) . '.' . $request->cover_photo_ext;
                     file_put_contents(storage_path("app/public/" . $path2), base64_decode($request->cover_photo));
                     // $path = $request->file('profile_image')->store('dp');
                 }
-                $user->name     = $request->input('name');
-                $user->mobile   = $request->input('mobile');
-                $user->email    = $request->input('email');
+                $user->name = $request->input('name');
+                $user->mobile = $request->input('mobile');
+                $user->email = $request->input('email');
                 $user->business_address = $request->input('business_address');
-                $user->business_name    = $request->business_name ?: $user->business_name;
-                $user->about_us         = $request->about_us;
+                $user->business_name = $request->business_name ?: $user->business_name;
+                $user->about_us = $request->about_us;
                 $user->delivery_address = $request->delivery_address ?: $user->delivery_address;
                 $user->notification_enabled = $request->notification_enabled ?: $user->notification_enabled;
-                if(!empty($path))
-                {
-                    $user->profile_image    = $path;
+                if (!empty($path)) {
+                    $user->profile_image = $path;
                 }
-                  if(!empty($path2))
-                {
-                    $user->cover_photo    = $path2;
+                if (!empty($path2)) {
+                    $user->cover_photo = $path2;
                 }
-                $user->device_token     = $request->device_token ?: $user->device_token;
+                $user->device_token = $request->device_token ?: $user->device_token;
                 $user->save();
                 return response()->json([
                     'status' => true,
                     'message' => 'User found',
-                    'session_id' => $session_id ,
-                    'data' => $user
+                    'session_id' => $session_id,
+                    'data' => $user,
                 ], 201);
             }
         }
     }
 
-    public function getUser(Request $request){
+    public function getUser(Request $request)
+    {
         $session_id = $request->header('session-id');
         $user = User::where('session_id', '=', $session_id)->first();
-        if($user == null && !empty($session_id)){
+        if ($user == null && !empty($session_id)) {
             return response()->json([
                 'status' => false,
                 'message' => 'No User Found',
             ], 404);
-        }else{
+        } else {
             return response()->json([
                 'status' => true,
                 'message' => 'User Data',
-                'session_id' => $session_id ,
-                'data' => $user
+                'session_id' => $session_id,
+                'data' => $user,
             ], 201);
         }
     }
 
-    public function getEarnedPointsHistory(Request $request){
+    public function getEarnedPointsHistory(Request $request)
+    {
         $session_id = $request->header('session-id');
         $user = User::where('session_id', '=', $session_id)->first();
-        if($user == null && !empty($session_id)){
+        if ($user == null && !empty($session_id)) {
             return response()->json([
                 'status' => false,
                 'message' => 'No User Found',
             ], 404);
-        }else{
-           $data2 = [];
-            $getorder = Order::where('merchant_id' , '=', $user->id)->get();
-            foreach ($getorder as $orders)
-            {
-                $item = Item::where('id' , '=', $orders->item_id)->get();
+        } else {
+            $data2 = [];
+            $getorder = Order::where('merchant_id', '=', $user->id)->get();
+            foreach ($getorder as $orders) {
+                $item = Item::where('id', '=', $orders->item_id)->get();
                 $data2[] = [
                     'order' => $orders,
-                    'item' => $item
+                    'item' => $item,
                 ];
             }
 
             return response()->json([
                 'status' => true,
                 'message' => 'Order Items',
-                'session_id' => $session_id ,
+                'session_id' => $session_id,
                 'data' => $data2,
-                'loyalty_points' => $user->loyalty_points
+                'loyalty_points' => $user->loyalty_points,
             ], 201);
         }
     }
 
-    public function getBenifits(Request $request){
+    public function getBenifits(Request $request)
+    {
         $session_id = $request->header('session-id');
         $user = User::where('session_id', '=', $session_id)->first();
-        if($user == null && !empty($session_id)){
+        if ($user == null && !empty($session_id)) {
             return response()->json([
                 'status' => false,
                 'message' => 'No User Found',
             ], 404);
-        }else{
+        } else {
             $tiers = Tier::where('user_id', '=', $user->id)->get();
             return response()->json([
                 'status' => true,
                 'message' => 'Total Memberships',
-                'session_id' => $session_id ,
-                'data' => $tiers
+                'session_id' => $session_id,
+                'data' => $tiers,
             ], 201);
         }
     }
 
-    public function getPromotionalProducts(Request $request){
+    public function getPromotionalProducts(Request $request)
+    {
         $session_id = $request->header('session-id');
         $user = User::where('session_id', '=', $session_id)->first();
-        if($user == null && !empty($session_id)){
+        if ($user == null && !empty($session_id)) {
             return response()->json([
                 'status' => false,
                 'message' => 'No User Found',
             ], 404);
-        }else{
+        } else {
             $data2 = [];
             $category = Category::all();
-            foreach ($category as $categorys)
-            {
-                $item = Item::where('category_id' , '=', $categorys->id)->get();
+            foreach ($category as $categorys) {
+                $item = Item::where('category_id', '=', $categorys->id)->get();
                 $data2[] = [
                     'Category' => $categorys,
-                    'item' => $item
+                    'item' => $item,
                 ];
             }
             return response()->json([
                 'status' => true,
                 'message' => 'Promotional Product ',
-                'session_id' => $session_id ,
-                'data' => $data2
+                'session_id' => $session_id,
+                'data' => $data2,
             ], 201);
         }
     }
 
-    public function addtoFavorite(Request $request){
+    public function addtoFavorite(Request $request)
+    {
         $validator = \Validator::make($request->all(), [
-            'product_id' => 'required'
+            'product_id' => 'required',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
-        }else{
+        } else {
             $session_id = $request->header('session-id');
             $user = User::where('session_id', '=', $session_id)->first();
-            if($user == null && !empty($session_id)){
+            if ($user == null && !empty($session_id)) {
                 return response()->json([
                     'status' => false,
                     'message' => 'No User Found',
                 ], 404);
-            }else{
-                $product_id = (int)$request->input('product_id');
+            } else {
+                $product_id = (int) $request->input('product_id');
                 $user_id = $user->id;
                 $checkFavorite = Favorite::where('user_id', '=', $user_id)->where('product_id', '=', $product_id)->first();
-                if($checkFavorite == null){
+                if ($checkFavorite == null) {
                     $favorite = new Favorite;
                     $favorite->user_id = $user_id;
                     $favorite->product_id = $product_id;
@@ -284,50 +286,51 @@ class UpdatedController extends Controller
                     return response()->json([
                         'status' => true,
                         'message' => 'Add To Favorite ',
-                        'session_id' => $session_id ,
-                        'data' => $favorite
+                        'session_id' => $session_id,
+                        'data' => $favorite,
                     ], 201);
-                }else{
+                } else {
                     return response()->json([
                         'status' => false,
                         'message' => 'Already Added ',
-                        'session_id' => $session_id ,
-                        'data' => $checkFavorite
+                        'session_id' => $session_id,
+                        'data' => $checkFavorite,
                     ], 201);
                 }
             }
         }
     }
 
-    public function removefromFavorite(Request $request){
+    public function removefromFavorite(Request $request)
+    {
         $validator = \Validator::make($request->all(), [
-            'product_id' => 'required'
+            'product_id' => 'required',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
-        }else{
+        } else {
             $session_id = $request->header('session-id');
             $user = User::where('session_id', '=', $session_id)->first();
-            if($user == null && !empty($session_id)){
+            if ($user == null && !empty($session_id)) {
                 return response()->json([
                     'status' => false,
                     'message' => 'No User Found',
                 ], 404);
-            }else{
-                $product_id = (int)$request->input('product_id');
+            } else {
+                $product_id = (int) $request->input('product_id');
                 $user_id = $user->id;
                 $checkFavorite = Favorite::where('user_id', '=', $user_id)->where('product_id', '=', $product_id)->first();
-                if($checkFavorite == null){
+                if ($checkFavorite == null) {
                     return response()->json([
                         'status' => false,
                         'message' => 'Not Found',
                     ], 404);
-                }else{
+                } else {
                     $checkFavorite->delete();
                     return response()->json([
                         'status' => true,
                         'message' => 'Delete Favourite ',
-                        'session_id' => $session_id
+                        'session_id' => $session_id,
                     ], 201);
                 }
             }
@@ -343,20 +346,21 @@ class UpdatedController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Merchants',
-            'session_id' => $session_id ,
-            'data' => $merchants
+            'session_id' => $session_id,
+            'data' => $merchants,
         ], 201);
     }
 
-    public function getDashboard(Request $request){
+    public function getDashboard(Request $request)
+    {
         $session_id = $request->header('session-id');
         $user = User::with('favorites', 'favorites.product', 'favorites.product.images')->where('session_id', '=', $session_id)->first();
-        if($user == null && !empty($session_id)){
+        if ($user == null && !empty($session_id)) {
             return response()->json([
                 'status' => false,
                 'message' => 'No User Found',
             ], 404);
-        }else{
+        } else {
             $merchantId = $request->input('merchant_id');
             $category = Category::when(!is_null($merchantId), function ($query) use ($merchantId) {
                 $query->where('merchant_id', $merchantId);
@@ -364,14 +368,10 @@ class UpdatedController extends Controller
 
             $special_deals = Item::with('images')->where('special_deals', '=', 1)->get();
 
-            foreach($special_deals as &$special_deal)
-            {
-                if(Favorite::where('user_id', $user->id)->where('product_id', $special_deal->id)->count() > 0)
-                {
+            foreach ($special_deals as &$special_deal) {
+                if (Favorite::where('user_id', $user->id)->where('product_id', $special_deal->id)->count() > 0) {
                     $special_deal->is_fav = true;
-                }
-                else
-                {
+                } else {
                     $special_deal->is_fav = false;
                 }
             }
@@ -380,42 +380,42 @@ class UpdatedController extends Controller
             $data2[] = [
                 'Category' => $category,
                 'Favourite_Item' => $user->favorites,
-                'special_deals' => $special_deals
+                'special_deals' => $special_deals,
             ];
 
             return response()->json([
                 'status' => true,
                 'message' => 'Dashboard',
-                'session_id' => $session_id ,
-                'data' => $data2
+                'session_id' => $session_id,
+                'data' => $data2,
             ], 201);
         }
     }
 
-    public function getProducts(Request $request){
+    public function getProducts(Request $request)
+    {
         $validator = \Validator::make($request->all(), [
-            'category_id' => 'required'
+            'category_id' => 'required',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
-        }else{
+        } else {
             $session_id = $request->header('session-id');
             $user = User::where('session_id', '=', $session_id)->first();
-            if($user == null && !empty($session_id)){
+            if ($user == null && !empty($session_id)) {
                 return response()->json([
                     'status' => false,
                     'message' => 'No User Found',
                 ], 404);
-            }else{
+            } else {
                 $category_id = $request->input('category_id');
                 $itemlist = [];
-                $item = Item::with('images')->where('category_id' , '=', $category_id)->get();
-                foreach ($item as $items)
-                {
+                $item = Item::with('images')->where('category_id', '=', $category_id)->get();
+                foreach ($item as $items) {
                     $favourite = Favorite::where('product_id', '=', $items->id)->where('user_id', '=', $user->id)->first();
-                    if($favourite == null){
+                    if ($favourite == null) {
                         $items->is_fav = false;
-                    }else{
+                    } else {
                         $items->is_fav = true;
                     }
                     $itemlist[] = $items;
@@ -423,38 +423,34 @@ class UpdatedController extends Controller
                 return response()->json([
                     'status' => true,
                     'message' => 'Products list By Category',
-                    'session_id' => $session_id ,
-                    'data' => $itemlist
+                    'session_id' => $session_id,
+                    'data' => $itemlist,
                 ], 200);
             }
         }
     }
 
-
-
-    public function addtoCart(Request $request){
+    public function addtoCart(Request $request)
+    {
         $validator = \Validator::make($request->all(), [
             'product_id' => 'required',
-            'quantity' => 'required'
+            'quantity' => 'required',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
-        }else{
+        } else {
             $session_id = $request->header('session-id');
             $user = User::where('session_id', '=', $session_id)->first();
-            if($user == null && !empty($session_id)){
+            if ($user == null && !empty($session_id)) {
                 return response()->json([
                     'status' => false,
                     'message' => 'No User Found',
                 ], 404);
-            }else{
+            } else {
                 $cart = Cart::where('product_id', $request->input('product_id'))->where('user_id', $user->id)->first();
-                if(!empty($cart))
-                {
+                if (!empty($cart)) {
                     $cart->quantity += (int) $request->input('quantity');
-                }
-                else
-                {
+                } else {
                     $cart = new Cart();
                     $cart->product_id = $request->input('product_id');
                     $cart->quantity = $request->input('quantity');
@@ -465,40 +461,37 @@ class UpdatedController extends Controller
                 return response()->json([
                     'status' => true,
                     'message' => 'Add to Cart',
-                    'session_id' => $session_id ,
-                    'data' => Cart::with('product', 'product.images')->where('user_id', $user->id)->get()
+                    'session_id' => $session_id,
+                    'data' => Cart::with('product', 'product.images')->where('user_id', $user->id)->get(),
                 ], 201);
             }
         }
     }
 
-    public function updateCart(Request $request){
+    public function updateCart(Request $request)
+    {
         $validator = \Validator::make($request->all(), [
             'product_id' => 'required',
-            'quantity' => 'required'
+            'quantity' => 'required',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
-        }else{
+        } else {
             $session_id = $request->header('session-id');
             $user = User::where('session_id', '=', $session_id)->first();
-            if($user == null && !empty($session_id)){
+            if ($user == null && !empty($session_id)) {
                 return response()->json([
                     'status' => false,
                     'message' => 'No User Found',
                 ], 404);
-            }else{
-                $cart   = Cart::where('product_id', $request->input('product_id'))->where('user_id', $user->id)->first();
-                $qty    = (int) $request->input('quantity');
+            } else {
+                $cart = Cart::where('product_id', $request->input('product_id'))->where('user_id', $user->id)->first();
+                $qty = (int) $request->input('quantity');
 
-                if(!empty($cart))
-                {
-                    if($qty <= 0)
-                    {
-                         $cart->delete();
-                    }
-                    else
-                    {
+                if (!empty($cart)) {
+                    if ($qty <= 0) {
+                        $cart->delete();
+                    } else {
                         $cart->quantity = $qty;
                         $cart->save();
                     }
@@ -506,12 +499,10 @@ class UpdatedController extends Controller
                     return response()->json([
                         'status' => true,
                         'message' => 'Cart Updated',
-                        'session_id' => $session_id ,
-                        'data' => Cart::with('product', 'product.images')->where('user_id', $user->id)->get()
+                        'session_id' => $session_id,
+                        'data' => Cart::with('product', 'product.images')->where('user_id', $user->id)->get(),
                     ], 200);
-                }
-                else
-                {
+                } else {
                     return response()->json([
                         'status' => false,
                         'message' => 'No Cart Found',
@@ -521,73 +512,76 @@ class UpdatedController extends Controller
         }
     }
 
-    public function getCart(Request $request){
+    public function getCart(Request $request)
+    {
         $session_id = $request->header('session-id');
 
         $user = User::with('cart', 'cart.product', 'cart.product.images')->where('session_id', '=', $session_id)->first();
-        if($user == null && !empty($session_id)){
+        if ($user == null && !empty($session_id)) {
             return response()->json([
                 'status' => false,
                 'message' => 'No User Found',
             ], 404);
-        }else{
+        } else {
             $cart = Cart::where('user_id', '=', $user->id)->get();
 
             return response()->json([
                 'status' => true,
                 'message' => 'Get Cart',
-                'session_id' => $session_id ,
-                'data' =>$user->cart
+                'session_id' => $session_id,
+                'data' => $user->cart,
             ], 201);
         }
     }
 
-    public function getRedeemHistory(Request $request){
+    public function getRedeemHistory(Request $request)
+    {
         $session_id = $request->header('session-id');
         $user = User::where('session_id', '=', $session_id)->first();
-        if($user == null && !empty($session_id)){
+        if ($user == null && !empty($session_id)) {
             return response()->json([
                 'status' => false,
                 'message' => 'No User Found',
             ], 404);
-        }else{
+        } else {
             $order = Order::where('merchant_id', '=', $user->id)->get();
             return response()->json([
                 'status' => true,
                 'message' => 'Get Cart',
-                'session_id' => $session_id ,
-                'data' => $order
+                'session_id' => $session_id,
+                'data' => $order,
             ], 201);
         }
     }
 
-    public function trackMyorder(Request $request){
+    public function trackMyorder(Request $request)
+    {
         $validator = \Validator::make($request->all(), [
             'order_id' => 'required',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
-        }else{
+        } else {
             $session_id = $request->header('session-id');
             $user = User::where('session_id', '=', $session_id)->first();
-            if($user == null && !empty($session_id)){
+            if ($user == null && !empty($session_id)) {
                 return response()->json([
                     'status' => false,
                     'message' => 'No User Found',
                 ], 404);
-            }else{
+            } else {
                 $order = Order::where('merchant_id', '=', $user->id)->where('id', '=', $request->input('order_id'))->first();
                 $orderStatus;
-                if($order->status == 0){
+                if ($order->status == 0) {
                     $orderStatus = false;
-                }else{
+                } else {
                     $orderStatus = true;
                 }
                 return response()->json([
                     'status' => true,
                     'message' => 'Track Order',
-                    'session_id' => $session_id ,
-                    'data' => $orderStatus
+                    'session_id' => $session_id,
+                    'data' => $orderStatus,
                 ], 201);
             }
         }
@@ -597,8 +591,7 @@ class UpdatedController extends Controller
     {
         $session_id = $request->header('session-id');
         $user = User::where('session_id', '=', $session_id)->first();
-        if($user == null && !empty($session_id))
-        {
+        if ($user == null && !empty($session_id)) {
             return response()->json([
                 'status' => false,
                 'message' => 'No User Found',
@@ -608,7 +601,7 @@ class UpdatedController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Returning Notifications',
-            'notifications' => Notification::where('user_id', $user->id)->get()
+            'notifications' => Notification::where('user_id', $user->id)->get(),
         ], 200);
     }
 
@@ -616,87 +609,77 @@ class UpdatedController extends Controller
     {
         $session_id = $request->header('session-id');
         $user = User::where('session_id', '=', $session_id)->first();
-        if($user == null && !empty($session_id))
-        {
+        if ($user == null && !empty($session_id)) {
             return response()->json([
                 'status' => false,
                 'message' => 'No User Found',
             ], 404);
         }
 
-         return response()->json([
-                'status' => true,
-                'message' => 'Returning Earned Points History',
-                'data'  => EarnedPoint::where('user_id', $user->id)->get()
-            ], 200);
+        return response()->json([
+            'status' => true,
+            'message' => 'Returning Earned Points History',
+            'data' => EarnedPoint::where('user_id', $user->id)->get(),
+        ], 200);
     }
 
     public function buyProductsHistory(Request $request)
-    {   DB::update('UPDATE orders SET  order_number = order_id');
+    {DB::update('UPDATE orders SET  order_number = order_id');
         $session_id = $request->header('session-id');
         $user = User::where('session_id', '=', $session_id)->first();
-        if($user == null && !empty($session_id))
-        {
+        if ($user == null && !empty($session_id)) {
             return response()->json([
                 'status' => false,
                 'message' => 'No User Found',
             ], 404);
         }
 
-         return response()->json([
-                'status' => true,
-                'message' => 'Returning Orders History',
-                'data'  => Order::with('product', 'product.images')->where('merchant_id', $user->id)->get()
-            ], 200);
+        return response()->json([
+            'status' => true,
+            'message' => 'Returning Orders History',
+            'data' => Order::with('product', 'product.images')->where('merchant_id', $user->id)->get(),
+        ], 200);
     }
 
-
-      public function AddPromotionalOrder(Request $request)
+    public function AddPromotionalOrder(Request $request)
     {
         $validator = \Validator::make($request->all(), [
             'order_id' => 'required',
-
         ]);
-        if ($validator->fails())
-        {
+
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
         $session_id = $request->header('session-id');
         $user = User::where('session_id', '=', $session_id)->first();
-        if($user == null && !empty($session_id))
-        {
+        if ($user == null && !empty($session_id)) {
             return response()->json([
                 'status' => false,
                 'message' => 'No User Found',
             ], 404);
         }
-       $order_id= $request->input('order_id');
-   $itemsArray= $request->input('items');
-
+        $order_id = $request->input('order_id');
+        $itemsArray = $request->input('items');
 
         \DB::beginTransaction();
 
-        foreach($itemsArray as $products)
-        {
+        foreach ($itemsArray as $products) {
             $order = new PromotionalOrder;
             $order->user_id = $user->id;
-            $order->order_id     = $order_id;
-            $order->item_id= $products['id'];
-            $order->quantity        = $products['quantity'];
+            $order->order_id = $order_id;
+            $order->item_id = $products['id'];
+            $order->quantity = $products['quantity'];
 
             $order->save();
-
         }
-
-
 
         \DB::commit();
 
         return response()->json([
             'status' => true,
             'message' => 'Promotional Order Placed',
-            'data'  => []
+            'data' => [],
         ], 201);
     }
     public function checkout(Request $request)
@@ -704,17 +687,15 @@ class UpdatedController extends Controller
         $validator = \Validator::make($request->all(), [
             'date' => 'required|date',
             'time' => 'required',
-            'delivery_address' => 'required'
+            'delivery_address' => 'required',
         ]);
-        if ($validator->fails())
-        {
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
         $session_id = $request->header('session-id');
         $user = User::where('session_id', '=', $session_id)->first();
-        if($user == null && !empty($session_id))
-        {
+        if ($user == null && !empty($session_id)) {
             return response()->json([
                 'status' => false,
                 'message' => 'No User Found',
@@ -723,11 +704,10 @@ class UpdatedController extends Controller
 
         $cart_products = Cart::with('product')->where('user_id', $user->id)->get();
 
-        if($cart_products->count() == 0)
-        {
+        if ($cart_products->count() == 0) {
             return response()->json([
                 'status' => false,
-                'message' => 'Cart Is Empty'
+                'message' => 'Cart Is Empty',
             ], 409);
         }
 
@@ -736,21 +716,20 @@ class UpdatedController extends Controller
         \DB::beginTransaction();
 
         $externalItems = [];
-        foreach($cart_products as $cart)
-        {
+        foreach ($cart_products as $cart) {
             $order = new Order;
             $order->merchant_id = $user->id;
-            $order->user_id     = $user->id;
-            $order->item_id     = $cart->product_id;
-            $order->order_number= $cart->quantity;
-            $order->name        = $cart->product->name;
-            $order->total_points= ((int) $cart->product->points) * $cart->quantity;
-            $order->date        = date('Y-m-d');
-            $order->status      = 0;
+            $order->user_id = $user->id;
+            $order->item_id = $cart->product_id;
+            $order->order_number = $cart->quantity;
+            $order->name = $cart->product->name;
+            $order->total_points = ((int) $cart->product->points) * $cart->quantity;
+            $order->date = date('Y-m-d');
+            $order->status = 0;
             $order->delivery_address = $request->delivery_address ?: "";
-            $order->date        = $request->date ?: "";
-            $order->time        = $request->time ?: "";
-            $order->order_id        = $request->order_id ?: 00;
+            $order->date = $request->date ?: "";
+            $order->time = $request->time ?: "";
+            $order->order_id = $request->order_id ?: 00;
             $order->save();
 
             $total_points += $order->total_points;
@@ -762,12 +741,11 @@ class UpdatedController extends Controller
             }
         }
 
-        if($total_points > (int) $user->loyalty_points)
-        {
+        if ($total_points > (int) $user->loyalty_points) {
             \DB::rollBack();
             return response()->json([
                 'status' => false,
-                'message' => 'You don\'t have enough points'
+                'message' => 'You don\'t have enough points',
             ], 409);
         }
 
@@ -777,7 +755,7 @@ class UpdatedController extends Controller
         \DB::commit();
         try {
             (new AsarAlJawaal())->createOrder($externalItems, $user);
-        } catch(\Exception $e) {
+        } catch (\Exception$e) {
             logger("Asar Al Jawaal Order Creation Error: " . $e->getMessage());
             logger($e->getTrace());
         }
@@ -785,20 +763,22 @@ class UpdatedController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Order Placed',
-            'data'  => Order::with('product')
+            'data' => Order::with('product')
                 ->where('merchant_id', $user->id)
                 ->latest()
                 ->take($cart_products->count())
-                ->get()
+                ->get(),
         ], 201);
     }
 
-    public function setCrypt($id){
+    public function setCrypt($id)
+    {
         $crypted = Crypt::encryptString($id);
         return $crypted;
     }
 
-    public function setDecrpt($encrypt){
+    public function setDecrpt($encrypt)
+    {
         try {
             $decrypted = Crypt::decryptString($encrypt);
         } catch (DecryptException $e) {
@@ -810,24 +790,24 @@ class UpdatedController extends Controller
     //Send SMS
     private function sendSMS($phone, $message, $from = "Fayda")
     {
-        $api_key    = "a4c05e77";
+        $api_key = "a4c05e77";
         $api_secret = "9i1kuAQ8V6zSFuGn";
 
-        $curl   = curl_init();
+        $curl = curl_init();
 
         curl_setopt_array($curl, array(
-          CURLOPT_URL => "https://rest.nexmo.com/sms/json",
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => "",
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 0,
-          CURLOPT_FOLLOWLOCATION => true,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => "POST",
-          CURLOPT_POSTFIELDS => "from=Fayda&text=" . urlencode($message) . "&to=" . $phone . "&api_key=$api_key&api_secret=$api_secret",
-          CURLOPT_HTTPHEADER => array(
-            "Content-Type: application/x-www-form-urlencoded"
-          ),
+            CURLOPT_URL => "https://rest.nexmo.com/sms/json",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => "from=Fayda&text=" . urlencode($message) . "&to=" . $phone . "&api_key=$api_key&api_secret=$api_secret",
+            CURLOPT_HTTPHEADER => array(
+                "Content-Type: application/x-www-form-urlencoded",
+            ),
         ));
 
         $response = curl_exec($curl);
