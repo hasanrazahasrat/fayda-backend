@@ -17,7 +17,7 @@ class UserController extends  Controller
                 'status' => 'Success',
                 'message' => 'Updated User Fetch Successfully',
                 'data' => $user
-            ], 201); 
+            ], 201);
         } else {
             return response()->json([
                 'status' => 'Error',
@@ -25,15 +25,9 @@ class UserController extends  Controller
             ], 402);
         }
     }
-    
+
     public function sendPushNotification($token, $title, $message, $icon_lg = "", $icon_xs = "", $subtitle = "", $ticker_text = "")
     {
-        // API access key from Google API's Console
-        
-        
-        //$registrationIds = array( $_GET['id'] );
-        
-        // prep the bundle
         $data = array
         (
         	'message' 	=> $message,
@@ -45,7 +39,7 @@ class UserController extends  Controller
         	'largeIcon'	=> $icon_lg,
         	'smallIcon'	=> $icon_xs
         );
-        
+
         $fcmEndpoint = 'https://fcm.googleapis.com/fcm/send';
 
         $payloads = [
@@ -56,7 +50,7 @@ class UserController extends  Controller
             'registration_ids' => is_array($token) ? $token : [$token]
         ];
         $headers = [
-            'Authorization: key=AAAAbgmm1r0:APA91bFT6NO9cuzeWExhsCt_oTJAiGhqfs4w_g1uZ8hPyiQ2Mupnml4KDYIGvHll_LyjLRN4AbWEPjDkqieDd2KEShfiEeJN2xl3Ur_9g1KLztSDDL0vNtimtU_3QRWNJSvRh2OcUYSp',
+            'Authorization: key=AAAA_ToMx_c:APA91bGMLmv9DrA8oyq_7akZ-gOJg29G2CfAOfepGCT6TogTtyHdeZqiEGOge93uly_VWqCB3xT7TZWaPnXqZVx5421U72j-eRBnSWLs9B3XcXIWEpheEoSgVTtq1gSzSfbCB7LwmGjg',
             'Content-Type: application/json'
         ];
 
