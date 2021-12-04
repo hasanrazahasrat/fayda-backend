@@ -28,17 +28,16 @@ class PopupPromotionController
 
     public function store(Request $request)
     {
+        $ItemPromotion                  = new ItemPromotion;
         if($request->hasFile('image'))
         {
-            $path = $request->file('image')->store('images');
+            $ItemPromotion->image = $request->file('image')->store('images');
         }
 
-        $ItemPromotion                  = new ItemPromotion;
         $ItemPromotion->p_category = '0';
         $ItemPromotion->promotion_date      = $request->promotion_date;
         $ItemPromotion->item            = $request->item;
         $ItemPromotion->ip_detail      = $request->ip_detail;
-        $ItemPromotion->image          = $path;
         $ItemPromotion->save();
         return redirect()->route('marketing.popup_promotion.index');
     }

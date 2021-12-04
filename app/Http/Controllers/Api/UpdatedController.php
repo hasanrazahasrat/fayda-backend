@@ -785,7 +785,11 @@ class UpdatedController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Order Placed',
-            'data'  => Order::with('product')->where('merchant_id', $user->id)->get()
+            'data'  => Order::with('product')
+                ->where('merchant_id', $user->id)
+                ->latest()
+                ->take($cart_products->count())
+                ->get()
         ], 201);
     }
 
