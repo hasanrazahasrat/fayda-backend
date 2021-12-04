@@ -31,15 +31,16 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <script src="{{ asset('js/app.js') }}" defer></script>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    
+
      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="">     
+    <link rel="stylesheet" type="text/css" href="">
+    <link rel="icon" href="https://b2cadm.nadec.com.sa/storage/favicons/HD8tUufAwwIqyNX5URpdvkpPnOIs9cKUPftM1Dr7.png" type="image/png">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
+
     @yield('css')
-    
+
     <style type="text/css">
         body {
     background-color: #7B1FA2
@@ -104,7 +105,7 @@
     width: 100px;
     border: none;
 	box-shadow: 1px 3px 5px 0px rgba(0,0,0,0.75);
-	
+
 	&.active {
 		border-bottom: 4px solid #fff;
 	}

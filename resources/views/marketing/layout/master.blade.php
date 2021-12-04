@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="{{ asset('assets/admin/plugins/daterangepicker/daterangepicker.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/admin/plugins/summernote/summernote-bs4.css') }}">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <link rel="icon" href="https://b2cadm.nadec.com.sa/storage/favicons/HD8tUufAwwIqyNX5URpdvkpPnOIs9cKUPftM1Dr7.png" type="image/png">
     <script src="{{ asset('js/app.js') }}" defer></script>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     @yield('css')
