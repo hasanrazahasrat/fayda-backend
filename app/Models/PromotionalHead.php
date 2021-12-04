@@ -7,10 +7,10 @@ use App\Models\PromotionsCategory;
 
 class PromotionalHead extends Model
 {
-	protected $guarded = [ 'id', 'created_at', 'updated_at' ];
-	
+	protected $guarded = [ 'id', 'title', 'title_ar', 'description', 'description_ar', 'created_at', 'updated_at' ];
+
     public function getImageAttribute($value)
     {
-        return asset('storage/' . $value);
+        return asset('files/' . $value);
     }
 }

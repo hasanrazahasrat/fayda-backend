@@ -16,66 +16,46 @@ class CustomPushController extends Controller
     {
         //$customPush = CustomPush::all();
          $notifications = Notification::with('user')->orderBy('id', 'DESC')->paginate(10);
-               
+
         return view('admin.custom_push.custom_push', compact('notifications'));
     }
 
     public function store(Request $request)
     {
-       
-         
         $request['status'] = 1;
-         $image = $request->file("icon");
-       /* if ($image) {
-
-            $image_name = date('dmy_H_s_i');
-            $ext = strtolower($image->getClientOriginalExtension());
-            $image_full_name = $image_name.'.'.$ext;
-            $upload_path = 'public/media/';
-            $image_url = $upload_path.$image_full_name;
-            $path = $image->move($upload_path,$image_full_name);
-        }*/
+        $image = $request->file("icon");
         $path = "";
         if($image)
         {
-            $image_name = date('dmy_H_s_i');
-            $ext = strtolower($image->getClientOriginalExtension());
-            $image_full_name = $image_name.'.'.$ext;
-            $upload_path = 'public/images/';
-            $image_url = $upload_path.$image_full_name;
-           
-            $path = $image->move($upload_path,$image_full_name);
-            
+            $path = $image->store('notifications', 'public');
         }
-     
+
         $user_tokens = [];
-       
-         foreach($request->user_id as $user_id) 
-         {
-            
-             $user = User::find($user_id);
-             
-             if(empty($user) || !$user->notification_enabled)
+
+        foreach($request->user_id as $user_id)
+        {
+            $user = User::find($user_id);
+
+            if(empty($user) || !$user->notification_enabled)
                 continue;
-                
+
             $user_tokens[] = $user->device_token;
-                
+
             $notifications = new Notification;
-         
-            $notifications->user_id = $user->id; 
+
+            $notifications->user_id = $user->id;
             $notifications->title = $request->title;
             $notifications->icon = $path;
             $notifications->detail = $request->detail;
-      
+
             $notifications->save();
-          
         }
-    
-       if(!empty($user_tokens))
+
+        if(!empty($user_tokens))
         {
-         (new Push)->sendPushNotification($user_tokens,$notifications->title, $notifications->detail, $notifications->icon);
+            (new Push)->sendPushNotification($user_tokens,$notifications->title, $notifications->detail, $notifications->icon);
         }
-        
+
         return back();
     }
 
@@ -83,14 +63,14 @@ class CustomPushController extends Controller
     {
         $notification = Notification::find($id);
 
-              
+
         $notification->delete();
         return back();
     }
-    
+
     public function fetchUser(Request $request){
-        
-        
+
+
     }
 
 }

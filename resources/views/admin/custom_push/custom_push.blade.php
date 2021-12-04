@@ -31,13 +31,13 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <script src="{{ asset('js/app.js') }}" defer></script>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    
+
      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="">     
-   
-    
-    
-    
+    <link rel="stylesheet" type="text/css" href="">
+
+
+
+
     <style type="text/css">
         body {
     background-color: #7B1FA2
@@ -102,7 +102,7 @@
     width: 100px;
     border: none;
 	box-shadow: 1px 3px 5px 0px rgba(0,0,0,0.75);
-	
+
 	&.active {
 		border-bottom: 4px solid #fff;
 	}
@@ -415,7 +415,7 @@ label u {
                 <!--        </li>-->
                 <!--    </ul>-->
                 <!--</li>-->
-                
+
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fa fa-user"></i>
@@ -468,7 +468,7 @@ label u {
                     <div class="card card-primary">
                         <div class="card-header" style="background-color: #8cc63f;">
                             <h3 class="card-title">Push notification</h3>
-    
+
                         </div>
                         <form role="form" id="quickForm" method="post" action="{{ route('admin.custom_push.store') }}" enctype="multipart/form-data">
                             @csrf
@@ -476,17 +476,14 @@ label u {
                                 <div class="form-group">
                                     <label for="send_to">Send to</label>
                                     @php
-                                    $users = DB::table('users')->take(10000)->get(['id', 'name']);
+                                    $users = DB::table('users')->latest('updated_at')->take(500)->get(['id', 'name']);
                                     @endphp
                                     <select class="form-control js-select2 "  name="user_id[]" id=" tags" multiple>
-
                                         <option disabled="">All Users</option>
                                         @foreach($users as $user)
                                         <option value="{{$user->id}}">{{$user->name}}</option>
                                         @endforeach
-                                        
                                     </select>
-
                                 </div>
                                 <div class="form-group">
                                     <label>Title</label>
@@ -503,7 +500,7 @@ label u {
                                     <label for=b1>
                                         <u class="btn" style="background-color: #8cc63f;">Upload Image</u>
                                     <input  style="visibility:hidden; width:0px" type=file name=icon id=b1
-                                    
+
                                      accept='image/*'>
                                     </label>
                                 </div>
@@ -528,12 +525,12 @@ label u {
                                     <th>Actions</th>
                                 </tr>
                                 </thead>
-                               
+
                                 @foreach($notifications as $notification)
                                     <tbody>
                                     <tr>
-                                        
-                                        
+
+
                                         <td>{{$notification->title}}</td>
                                         <td>{{$notification->detail}}</td>
                                         <td>
@@ -541,7 +538,7 @@ label u {
                                             @if($im != 'e')
                                             <img src="{{$notification->icon}}" width='60' hieght='60'>
                                             @else
-                                            
+
                                             <img src="{{asset('storage/images/cLAxd5rtwmB0e3zh7VDjXlpyrcH2ICFcrC3fjjas.png')}}" width='60' hieght='60'>
                                             @endif
                                         </td>
@@ -660,7 +657,7 @@ label u {
  <!-- AdminLTE for demo purposes -->
  <script src="{{ asset('assets/admin/dist/js/demo.js') }}"></script>
 <script>
-  
+
   $(".js-select2").select2({
             closeOnSelect : false,
             placeholder : "Select Users",
@@ -668,7 +665,7 @@ label u {
             allowClear: true,
             tags: true // создает новые опции на лету
         });
-    
+
 </script>
 
     <script type="text/javascript">
@@ -677,14 +674,14 @@ label u {
                 submitHandler: function () {
                     alert("Form successful submitted!");
                 }
-          
+
             });
 
 
  $(document).ready(function() {
     $('.js-example-basic-multiple').select2();
 });
- 
+
             $('#quickForm').validate({
                 rules: {
                     email: {
@@ -739,7 +736,7 @@ $(".js-programmatic-disable").on("click", function () {
 
     <script type="text/javascript">
         $(document).ready(function () {
-            
+
 
 
             bsCustomFileInput.init();
@@ -757,9 +754,9 @@ $(".js-programmatic-disable").on("click", function () {
                 "autoWidth": false,
                 "responsive": true,
             });
-            
-            
-            
+
+
+
         });
     </script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -769,4 +766,3 @@ $(".js-programmatic-disable").on("click", function () {
 </body>
 </html>
 
-    

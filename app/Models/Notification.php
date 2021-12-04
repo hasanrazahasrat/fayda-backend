@@ -10,9 +10,9 @@ class Notification extends Model
     {
         return $this->belongsTo(User::class);
     }
-    
+
     public function getIconAttribute($value)
     {
-        return asset('storage/' . $value);
+        return asset('files/' . $value);
     }
 }
